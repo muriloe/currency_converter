@@ -1,5 +1,9 @@
+import 'package:currency_converter/currency_selection_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
+
+import 'app_controller.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,11 +26,18 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                currencybtn(),
+                currencybtn(
+                    origin: 'from',
+                    onClick: (value) => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CurrencySelectionPage()),
+                          ),
+                        }),
                 Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0)),
                 Icon(Icons.compare_arrows_outlined),
                 Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
-                currencybtn(),
+                currencybtn(origin: 'to'),
               ],
             ),
             inputCurrency(),
@@ -38,14 +49,16 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-currencybtn({String currency}) {
+currencybtn({String currency, String origin, onClick}) {
   return ButtonTheme(
     minWidth: 150,
     child: RaisedButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0), side: BorderSide(color: Colors.blue)),
         padding: EdgeInsets.fromLTRB(0, 13, 0, 13),
         textColor: Colors.white,
-        onPressed: () {},
+        onPressed: () {
+          onClick(origin);
+        },
         child: Text(
           currency != null ? currency : 'Selecionar',
           overflow: TextOverflow.clip,
