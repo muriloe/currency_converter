@@ -21,7 +21,7 @@ class _CurrencySelectionPageState extends State<CurrencySelectionPage> {
         providers: [ChangeNotifierProvider<AppController>.value(value: AppController())],
         child: Scaffold(
           appBar: AppBar(
-            title: Center(child: Text('Selecione a moeda')),
+            title: Text('Selecione a moeda'),
           ),
           body: Container(
             child: Consumer<AppController>(
