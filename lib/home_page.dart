@@ -1,6 +1,7 @@
 import 'package:currency_converter/currency_selection_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import 'app_controller.dart';
@@ -13,7 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    AppController appController = Provider.of<AppController>(context, listen: false);
+    AppController appController = Provider.of<AppController>(context);
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Currency Converter')),
@@ -34,8 +35,10 @@ class _HomePageState extends State<HomePage> {
                 currencybtn(origin: 'to', onClick: (value) async => {getToCoin(context)}, context: context, currency: appController.coinTo),
               ],
             ),
-            inputCurrency(),
-            appController.coinFrom != null && appController.coinTo != null ? resultText(appController.coinFrom, '1', appController.coinTo, '2') : Container()
+            inputCurrency(context),
+            appController.coinFrom != null && appController.coinTo != null && appController.valueToConvert != null && appController.result != null
+                ? resultText(appController.coinFrom, appController.valueToConvert.toString(), appController.coinTo, appController.result.toStringAsFixed(6))
+                : Container()
           ],
         ),
       ),
@@ -62,7 +65,6 @@ getToCoin(context) async {
 }
 
 currencybtn({String currency, String origin, onClick, context}) {
-  AppController appController = Provider.of<AppController>(context);
   return ButtonTheme(
     minWidth: 150,
     child: RaisedButton(
@@ -79,11 +81,12 @@ currencybtn({String currency, String origin, onClick, context}) {
   );
 }
 
-inputCurrency() {
+inputCurrency(context) {
   return Container(
     child: Padding(
       padding: const EdgeInsets.fromLTRB(34, 10, 34, 0),
       child: TextField(
+        onChanged: (value) => {calculate(value, context)},
         keyboardType: TextInputType.number,
         minLines: 1,
         maxLines: 1,
@@ -106,6 +109,30 @@ inputCurrency() {
   );
 }
 
+calculate(value, context) {
+  try {
+    double.parse(value);
+    AppController appController = Provider.of<AppController>(context, listen: false);
+    if (value == "") {
+      appController.valueToConvert = null;
+      appController.notifyListeners();
+    } else {
+      appController.valueToConvert = double.parse(value);
+      appController.calculateResult();
+    }
+  } catch (err) {
+    Fluttertoast.showToast(
+        msg: "Valor de entrada inválido",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+    print(err);
+  }
+}
+
 resultText(originCoin, originValue, destinycoin, destinyValue) {
   return Column(
     children: [
@@ -120,6 +147,8 @@ resultText(originCoin, originValue, destinycoin, destinyValue) {
         children: [
           Text(
             destinyValue + ' ',
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 35),
           ),
           Text(destinycoin, style: TextStyle(fontSize: 25))

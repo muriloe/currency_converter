@@ -9,8 +9,10 @@ class AppController extends ChangeNotifier {
   List<CoinModel> coins = [];
   String coinFrom;
   String coinTo;
-  String valueToConvert;
-  String result;
+  double valueToConvert;
+  double result;
+  double baseValueUsdFrom;
+  double baseValueUsdTo;
 
   AppController() {
     getCoins();
@@ -25,13 +27,38 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
-  setCoinFrom(String alias) {
+  getUsdValue(alias) async {
+    if (alias == "USD") {
+      return 1.0;
+    } else {
+      coins = List<CoinModel>();
+      var result = await http.get('http://api.currencylayer.com/live?access_key=' + apiKey + '&currencies=' + alias);
+      var parsedJson = json.decode(result.body);
+      var coinsMap = parsedJson['quotes'];
+      var valueResult;
+      coinsMap.forEach((alias, name) => {valueResult = name});
+      return valueResult;
+    }
+  }
+
+  setCoinFrom(String alias) async {
     coinFrom = alias;
+    baseValueUsdFrom = await getUsdValue(alias);
+    calculateResult();
     notifyListeners();
   }
 
-  setCoinTo(String alias) {
+  setCoinTo(String alias) async {
     coinTo = alias;
+    baseValueUsdTo = await getUsdValue(alias);
+    calculateResult();
     notifyListeners();
+  }
+
+  calculateResult() {
+    if (coinFrom != null && coinTo != null && valueToConvert != null) {
+      result = baseValueUsdTo / baseValueUsdFrom * valueToConvert;
+      notifyListeners();
+    }
   }
 }
