@@ -7,6 +7,10 @@ import 'package:http/http.dart' as http;
 class AppController extends ChangeNotifier {
   String apiKey = '46c6cfaea256e53df0d6ae13d109eb0c';
   List<CoinModel> coins = [];
+  String coinFrom;
+  String coinTo;
+  String valueToConvert;
+  String result;
 
   AppController() {
     getCoins();
@@ -18,6 +22,16 @@ class AppController extends ChangeNotifier {
     var parsedJson = json.decode(result.body);
     var coinsMap = parsedJson['currencies'];
     coinsMap.forEach((alias, name) => {coins.add(CoinModel(name: name, alias: alias))});
+    notifyListeners();
+  }
+
+  setCoinFrom(String alias) {
+    coinFrom = alias;
+    notifyListeners();
+  }
+
+  setCoinTo(String alias) {
+    coinTo = alias;
     notifyListeners();
   }
 }

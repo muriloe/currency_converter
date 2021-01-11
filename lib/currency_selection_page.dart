@@ -4,11 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CurrencySelectionPage extends StatefulWidget {
+  final String origin;
+
+  const CurrencySelectionPage({Key key, this.origin}) : super(key: key);
   @override
-  _CurrencySelectionPageState createState() => _CurrencySelectionPageState();
+  _CurrencySelectionPageState createState() => _CurrencySelectionPageState(origin);
 }
 
 class _CurrencySelectionPageState extends State<CurrencySelectionPage> {
+  final String origin;
+
+  _CurrencySelectionPageState(this.origin);
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -40,6 +46,9 @@ class _CurrencySelectionPageState extends State<CurrencySelectionPage> {
     return ListTile(
       title: Text(coin.name),
       trailing: Text(coin.alias),
+      onTap: () {
+        Navigator.pop(context, coin.alias);
+      },
     );
   }
 }

@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    AppController appController = Provider.of<AppController>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Currency Converter')),
@@ -26,22 +27,15 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                currencybtn(
-                    origin: 'from',
-                    onClick: (value) => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CurrencySelectionPage()),
-                          ),
-                        }),
+                currencybtn(origin: 'from', onClick: (value) async => {getFromCoin(context)}, context: context, currency: appController.coinFrom),
                 Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0)),
                 Icon(Icons.compare_arrows_outlined),
                 Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0)),
-                currencybtn(origin: 'to'),
+                currencybtn(origin: 'to', onClick: (value) async => {getToCoin(context)}, context: context, currency: appController.coinTo),
               ],
             ),
             inputCurrency(),
-            resultText('BRL', '1', 'USD', '2')
+            appController.coinFrom != null && appController.coinTo != null ? resultText(appController.coinFrom, '1', appController.coinTo, '2') : Container()
           ],
         ),
       ),
@@ -49,7 +43,26 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-currencybtn({String currency, String origin, onClick}) {
+getFromCoin(context) async {
+  var alias = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => CurrencySelectionPage()),
+  );
+  AppController appController = Provider.of<AppController>(context, listen: false);
+  appController.setCoinFrom(alias);
+}
+
+getToCoin(context) async {
+  var alias = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => CurrencySelectionPage()),
+  );
+  AppController appController = Provider.of<AppController>(context, listen: false);
+  appController.setCoinTo(alias);
+}
+
+currencybtn({String currency, String origin, onClick, context}) {
+  AppController appController = Provider.of<AppController>(context);
   return ButtonTheme(
     minWidth: 150,
     child: RaisedButton(
